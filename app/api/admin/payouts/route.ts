@@ -3,6 +3,8 @@ import { verifyToken } from "@/lib/auth";
 import { success, error } from "@/lib/response";
 import { PrismaClient } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {

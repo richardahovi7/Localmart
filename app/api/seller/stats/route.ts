@@ -3,6 +3,8 @@ import { verifyToken } from "@/lib/auth";
 import { success, error } from "@/lib/response";
 import { PrismaClient } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
@@ -19,9 +21,7 @@ export async function GET(req: NextRequest) {
     if (businesses.length === 0) return error("No business found", 404);
     const businessId = businesses[0].id;
 
-    const orderStats = await prisma.$queryRawUnsafe<
-      { order_count: number; revenue_cents: number }[]
-    >(
+    const orderStats = await prisma.$queryRawUnsafe<{ order_count: number; revenue_cents: number }[]>(
       `SELECT COUNT(*)::int AS order_count,
               COALESCE(SUM(grand_total_cents), 0)::int AS revenue_cents
        FROM orders
@@ -29,9 +29,7 @@ export async function GET(req: NextRequest) {
       businessId
     );
 
-    const productStats = await prisma.$queryRawUnsafe<
-      { product_count: number }[]
-    >(
+    const productStats = await prisma.$queryRawUnsafe<{ product_count: number }[]>(
       `SELECT COUNT(*)::int AS product_count
        FROM products
        WHERE business_id = $1::uuid`,
