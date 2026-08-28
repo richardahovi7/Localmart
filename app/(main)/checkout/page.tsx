@@ -147,7 +147,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-green-950 min-h-screen">
+    <div className="bg-green-50 min-h-screen">
       {/* Progress bar */}
       <div className="max-w-6xl mx-auto px-4 pt-6">
         <div className="bg-white border border-gray-100 rounded-xl px-6 py-4 flex items-center justify-between flex-wrap gap-4">
@@ -176,8 +176,8 @@ export default function CheckoutPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-100 mb-1">Checkout</h1>
-        <p className="text-gray-100 text-sm mb-6">Almost there! Please fill in your details to complete your order.</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Checkout</h1>
+        <p className="text-gray-500 text-sm mb-6">Almost there! Please fill in your details to complete your order.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column */}
@@ -364,7 +364,7 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl border border-gray-100 p-6 sticky top-20">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-gray-900">Order Summary</h2>
-                <Link href="/cart" className="text-sm text-green-950 hover:underline">Edit Cart</Link>
+                <Link href="/cart" className="text-sm text-green-700 hover:underline">Edit Cart</Link>
               </div>
 
               <div className="space-y-4 mb-5">
