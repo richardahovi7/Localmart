@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default function VerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams()
   const reference = searchParams.get('reference') || searchParams.get('trxref')
   const [status, setStatus] = useState<'checking' | 'success' | 'failed'>('checking')
@@ -52,5 +52,18 @@ export default function VerifyPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <p className="text-4xl mb-4">⏳</p>
+        <h1 className="text-2xl font-bold mb-2">Loading...</h1>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   )
 }
