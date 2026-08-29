@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -172,7 +172,7 @@ function ProductCard({ product, view }: { product: Product; view: 'grid' | 'list
   )
 }
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams()
 
   const [products, setProducts] = useState<Product[]>([])
@@ -504,5 +504,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-6">Loading...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   )
 }
