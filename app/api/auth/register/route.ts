@@ -1,6 +1,11 @@
-import { hashPassword, signToken } from '@/lib/auth'
+import { hashPassword } from '@/lib/auth'
 import { success, error } from '@/lib/response'
 import { slugify } from '@/lib/slugify'
+import { Resend } from 'resend'
+
+export const dynamic = 'force-dynamic'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
@@ -22,9 +27,12 @@ export async function POST(req: Request) {
     const passwordHash = await hashPassword(password)
     const userRole = role === 'SELLER' ? 'SELLER' : 'CUSTOMER'
 
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const codeExpires = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+
     const user = await prisma.$queryRaw`
-      INSERT INTO users (email, password_hash, full_name, phone, role)
-      VALUES (${email}, ${passwordHash}, ${fullName}, ${phone || null}, ${userRole})
+      INSERT INTO users (email, password_hash, full_name, phone, role, is_verified, verification_code, verification_code_expires)
+      VALUES (${email}, ${passwordHash}, ${fullName}, ${phone || null}, ${userRole}, false, ${verificationCode}, ${codeExpires})
       RETURNING id, email, full_name, role
     `
 
@@ -38,8 +46,24 @@ export async function POST(req: Request) {
       `
     }
 
-    const token = signToken({ id: newUser.id, email: newUser.email, role: userRole })
-    return success({ user: { ...newUser, fullName: newUser.full_name, role: userRole }, token }, 201)
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: 'Verify your LocalMart account',
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="color: #15803d;">Verify your email</h2>
+          <p>Hi ${fullName},</p>
+          <p>Welcome to LocalMart! Enter this code to verify your email address:</p>
+          <div style="background: #f0fdf4; border: 2px solid #15803d; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #15803d;">${verificationCode}</span>
+          </div>
+          <p style="color: #6b7280; font-size: 14px;">This code expires in 10 minutes.</p>
+        </div>
+      `,
+    })
+
+    return success({ email, requiresVerification: true }, 201)
   } catch (err: any) {
     console.error('REGISTER ERROR:', err?.message || err)
     return error('Registration failed: ' + (err?.message || 'Unknown error'), 500)

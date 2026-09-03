@@ -1,6 +1,8 @@
 import { verifyPassword, signToken } from '@/lib/auth'
 import { success, error } from '@/lib/response'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json()
@@ -10,7 +12,7 @@ export async function POST(req: Request) {
     const prisma = new PrismaClient()
 
     const users = await prisma.$queryRaw`
-      SELECT id, email, full_name, role, password_hash, is_active, avatar_url
+      SELECT id, email, full_name, role, password_hash, is_active, is_verified, avatar_url
       FROM users WHERE email = ${email} LIMIT 1
     `
 
@@ -19,6 +21,10 @@ export async function POST(req: Request) {
 
     const valid = await verifyPassword(password, user.password_hash)
     if (!valid) return error('Invalid credentials', 401)
+
+    if (!user.is_verified) {
+      return error('UNVERIFIED:' + user.email, 403)
+    }
 
     const token = signToken({ id: user.id, email: user.email, role: user.role })
     return success({

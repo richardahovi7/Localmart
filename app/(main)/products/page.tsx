@@ -101,7 +101,7 @@ function ProductCard({ product, view }: { product: Product; view: 'grid' | 'list
   if (view === 'list') {
     return (
       <Link href={`/products/${product.id}`} className="bg-white rounded-xl border border-gray-100 hover:shadow-md transition-shadow overflow-hidden flex gap-4 p-4">
-        <div className="w-32 h-32 shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
+        <div className="w-32 h-32 shrink-0 bg-green-800 rounded-lg overflow-hidden relative">
           <img src={image} alt={product.title} className="w-full h-full object-cover" />
           {discount && (
             <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">-{discount}%</span>

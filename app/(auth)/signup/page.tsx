@@ -21,18 +21,7 @@ export default function SignupPage() {
       const data = await res.json()
       if (!data.success) { setError(data.error); return }
 
-      const token = data.data.token
-      const user = data.data.user
-
-      document.cookie = `token=${token}; path=/; max-age=604800`
-      localStorage.setItem('user', JSON.stringify(user))
-      localStorage.setItem('token', token)
-
-      if (user.role === 'SELLER') {
-        window.location.href = '/dashboard'
-      } else {
-        window.location.href = '/home'
-      }
+      window.location.href = `/verify-email?email=${encodeURIComponent(form.email)}`
     } catch {
       setError('Something went wrong')
     } finally {

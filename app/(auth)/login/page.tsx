@@ -24,7 +24,16 @@ export default function LoginPage() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!data.success) { setError(data.error); return }
+
+      if (!data.success) {
+        if (typeof data.error === 'string' && data.error.startsWith('UNVERIFIED:')) {
+          const unverifiedEmail = data.error.split('UNVERIFIED:')[1]
+          router.push(`/verify-email?email=${encodeURIComponent(unverifiedEmail)}`)
+          return
+        }
+        setError(data.error)
+        return
+      }
 
       const token = data.data.token
       const user = data.data.user
@@ -32,11 +41,14 @@ export default function LoginPage() {
       document.cookie = `token=${token}; path=/; max-age=${rememberMe ? 604800 : 86400}`
       localStorage.setItem('user', JSON.stringify(user))
 
-      if (user.role === 'SELLER' || user.role === 'ADMIN') {
+      if (user.role === 'ADMIN') {
+        router.push('/admin')
+      } else if (user.role === 'SELLER') {
         router.push('/dashboard')
       } else {
         router.push('/home')
       }
+
     } catch {
       setError('Something went wrong')
     } finally {
