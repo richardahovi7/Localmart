@@ -49,9 +49,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-green-50 flex">
       <aside className="w-60 bg-white border-r border-gray-100 flex flex-col shrink-0">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <p className="font-bold text-gray-900">LocalMart</p>
-          <p className="text-xs text-gray-400">Admin Panel</p>
+        <div className="px-4 py-4 border-b border-gray-100">
+          <div className="h-12 w-full overflow-hidden flex items-center">
+            <img src="/logo.png" alt="LocalMart" className="h-20 w-auto scale-125" />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

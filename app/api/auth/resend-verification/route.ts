@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       verificationCode, codeExpires, user.id
     )
 
-    await resend.emails.send({
+    const emailResult = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: user.email,
       subject: 'Your new LocalMart verification code',
@@ -45,6 +45,11 @@ export async function POST(req: Request) {
         </div>
       `,
     })
+
+    if (emailResult.error) {
+      console.error('Resend send error:', emailResult.error)
+      return error('Could not send email. This may be a testing-mode limitation on our email provider.', 500)
+    }
 
     return success({ sent: true })
   } catch (err: any) {

@@ -48,7 +48,6 @@ export default function LoginPage() {
       } else {
         router.push('/home')
       }
-
     } catch {
       setError('Something went wrong')
     } finally {
