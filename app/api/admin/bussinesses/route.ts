@@ -41,7 +41,7 @@ export async function GET(req: Request) {
     const offsetParam = values.length
 
     const businesses = await prisma.$queryRawUnsafe(
-      `SELECT b.id, b.name, b.city, b.status, b.rating_avg, b.rating_count, b.created_at,
+      `SELECT b.id, b.name, b.city, b.status, b.is_verified, b.rating_avg, b.rating_count, b.created_at,
               u.full_name AS owner_name, u.email AS owner_email,
               (SELECT COUNT(*) FROM products p WHERE p.business_id = b.id AND p.is_active = true)::int AS product_count
        FROM businesses b
@@ -58,6 +58,7 @@ export async function GET(req: Request) {
         name: b.name,
         city: b.city,
         status: b.status,
+        isVerified: b.is_verified,
         ratingAvg: b.rating_avg ? Number(b.rating_avg) : 0,
         ratingCount: b.rating_count,
         productCount: b.product_count,
@@ -72,5 +73,32 @@ export async function GET(req: Request) {
   } catch (err: any) {
     console.error('ADMIN BUSINESSES ERROR:', err?.message)
     return error('Failed to fetch businesses: ' + err?.message, 500)
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const auth = req.headers.get('authorization')
+    if (!auth) return error('Unauthorized', 401)
+    const admin = verifyToken(auth.replace('Bearer ', ''))
+    if (!admin || admin.role !== 'ADMIN') return error('Unauthorized', 401)
+
+    const { businessId, isVerified } = await req.json()
+    if (!businessId || typeof isVerified !== 'boolean') {
+      return error('businessId and isVerified are required')
+    }
+
+    const { PrismaClient } = require('@prisma/client')
+    const prisma = new PrismaClient()
+
+    await prisma.$queryRawUnsafe(
+      `UPDATE businesses SET is_verified = $1 WHERE id = $2::uuid`,
+      isVerified, businessId
+    )
+
+    return success({ updated: true })
+  } catch (err: any) {
+    console.error('ADMIN BUSINESS UPDATE ERROR:', err?.message)
+    return error('Failed to update business: ' + err?.message, 500)
   }
 }

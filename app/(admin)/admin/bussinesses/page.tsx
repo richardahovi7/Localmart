@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Star, ChevronLeft, ChevronRight, ShieldCheck, Shield } from 'lucide-react'
 
 interface AdminBusiness {
   id: string
   name: string
   city: string | null
   status: string
+  isVerified: boolean
   ratingAvg: number
   ratingCount: number
   productCount: number
@@ -44,6 +45,19 @@ export default function AdminBusinessesPage() {
 
   useEffect(() => { fetchBusinesses() }, [fetchBusinesses])
 
+  async function toggleVerified(b: AdminBusiness) {
+    const token = document.cookie.split('; ').find(r => r.startsWith('token='))?.split('=')[1]
+    const res = await fetch('/api/admin/businesses', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ businessId: b.id, isVerified: !b.isVerified }),
+    })
+    const data = await res.json()
+    if (data.success) {
+      setBusinesses(prev => prev.map(x => x.id === b.id ? { ...x, isVerified: !x.isVerified } : x))
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Businesses</h1>
@@ -69,18 +83,22 @@ export default function AdminBusinessesPage() {
           <p className="text-center text-gray-400 py-16 text-sm">No businesses found.</p>
         ) : (
           <>
-            <div className="hidden sm:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-5 py-3 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <div className="hidden sm:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
               <span>Business</span>
               <span>Owner</span>
               <span>Rating</span>
               <span>Products</span>
-              <span>Status</span>
+              <span>Verified</span>
+              <span></span>
             </div>
             <div className="divide-y divide-gray-50">
               {businesses.map(b => (
-                <div key={b.id} className="grid grid-cols-1 sm:grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-5 py-3 items-center">
+                <div key={b.id} className="grid grid-cols-1 sm:grid-cols-[2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{b.name}</p>
+                    <p className="text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                      {b.name}
+                      {b.isVerified && <ShieldCheck size={15} className="text-green-600" />}
+                    </p>
                     <p className="text-xs text-gray-400">{b.city || 'No city set'}</p>
                   </div>
                   <div>
@@ -92,9 +110,16 @@ export default function AdminBusinessesPage() {
                     {b.ratingAvg.toFixed(1)} ({b.ratingCount})
                   </span>
                   <p className="text-sm text-gray-700">{b.productCount}</p>
-                  <span className="text-xs font-medium px-2 py-1 rounded-full w-fit bg-green-50 text-green-700">
-                    {b.status || 'Active'}
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full w-fit flex items-center gap-1 ${b.isVerified ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {b.isVerified ? <ShieldCheck size={12} /> : <Shield size={12} />}
+                    {b.isVerified ? 'Verified' : 'Unverified'}
                   </span>
+                  <button
+                    onClick={() => toggleVerified(b)}
+                    className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 w-fit justify-self-end"
+                  >
+                    {b.isVerified ? 'Unverify' : 'Verify'}
+                  </button>
                 </div>
               ))}
             </div>
