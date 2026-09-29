@@ -117,10 +117,10 @@ export default function AdminAdsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-2xl font-bold text-gray-100 mb-6">Manage Homepage Ads</h1>
+      <h1 className="text-2xl font-bold text-green-900 mb-6">Manage Homepage Ads</h1>
 
       <form onSubmit={handleCreate} className="bg-white border border-gray-200 rounded-xl p-6 mb-8 space-y-4">
-        <h2 className="font-bold text-gray-900">Add New Slide</h2>
+        <h2 className="font-bold text-green-900">Add New Slide</h2>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
           <input
@@ -162,14 +162,14 @@ export default function AdminAdsPage() {
         </button>
       </form>
 
-      <h2 className="font-bold text-gray-900 mb-3">Current Slides ({ads.length})</h2>
+      <h2 className="font-bold text-green-900 mb-3">Current Slides ({ads.length})</h2>
 
       {loading ? (
         <div className="animate-pulse space-y-3">
           {[...Array(2)].map((_, i) => <div key={i} className="bg-gray-100 h-20 rounded-xl" />)}
         </div>
       ) : ads.length === 0 ? (
-        <p className="text-gray-500 text-sm">No slides yet. Add one above.</p>
+        <p className="text-green-900 text-sm">No slides yet. Add one above.</p>
       ) : (
         <div className="space-y-3">
           {ads.map(ad => (
