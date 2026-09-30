@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Users, Package, Store, DollarSign, ShoppingBag } from 'lucide-react'
+import { Users, Package, Store, ShoppingBag } from 'lucide-react'
 
 interface Stats {
   totalUsers: number
@@ -28,6 +28,12 @@ const STATUS_COLORS: Record<string, string> = {
   SHIPPED: 'bg-indigo-100 text-indigo-700',
   DELIVERED: 'bg-green-100 text-green-700',
   CANCELLED: 'bg-red-100 text-red-700',
+}
+
+function CediIcon({ className }: { className?: string }) {
+  return (
+    <span className={`font-bold text-lg leading-none ${className}`}>₵</span>
+  )
 }
 
 export default function AdminOverviewPage() {
@@ -64,7 +70,7 @@ export default function AdminOverviewPage() {
   const cards = [
     { label: 'Total Users', value: stats.totalUsers, sub: `${stats.totalCustomers} customers · ${stats.totalSellers} sellers`, icon: Users, color: 'bg-blue-50 text-blue-700' },
     { label: 'Total Orders', value: stats.totalOrders, sub: 'All time', icon: Package, color: 'bg-purple-50 text-purple-700' },
-    { label: 'Total Revenue', value: `GH₵ ${(stats.totalRevenueCents / 100).toFixed(2)}`, sub: 'All time', icon: DollarSign, color: 'bg-green-50 text-green-700' },
+    { label: 'Total Revenue', value: `GH₵ ${(stats.totalRevenueCents / 100).toFixed(2)}`, sub: 'All time', icon: CediIcon, color: 'bg-green-50 text-green-700' },
     { label: 'Businesses', value: stats.totalBusinesses, sub: `${stats.totalProducts} active products`, icon: Store, color: 'bg-yellow-50 text-yellow-700' },
   ]
 

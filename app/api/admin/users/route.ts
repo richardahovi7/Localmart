@@ -82,18 +82,28 @@ export async function PATCH(req: Request) {
     const admin = verifyToken(auth.replace('Bearer ', ''))
     if (!admin || admin.role !== 'ADMIN') return error('Unauthorized', 401)
 
-    const { userId, isActive } = await req.json()
-    if (!userId || typeof isActive !== 'boolean') {
-      return error('userId and isActive are required')
+    const { userId, isActive, isVerified } = await req.json()
+    if (!userId) return error('userId is required')
+    if (isActive === undefined && isVerified === undefined) {
+      return error('At least one of isActive or isVerified is required')
     }
 
     const { PrismaClient } = require('@prisma/client')
     const prisma = new PrismaClient()
 
-    await prisma.$queryRawUnsafe(
-      `UPDATE users SET is_active = $1 WHERE id = $2::uuid`,
-      isActive, userId
-    )
+    if (isActive !== undefined) {
+      await prisma.$queryRawUnsafe(
+        `UPDATE users SET is_active = $1 WHERE id = $2::uuid`,
+        isActive, userId
+      )
+    }
+
+    if (isVerified !== undefined) {
+      await prisma.$queryRawUnsafe(
+        `UPDATE users SET is_verified = $1 WHERE id = $2::uuid`,
+        isVerified, userId
+      )
+    }
 
     return success({ updated: true })
   } catch (err: any) {

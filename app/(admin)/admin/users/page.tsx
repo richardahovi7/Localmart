@@ -63,10 +63,23 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function toggleVerified(u: AdminUser) {
+    const token = document.cookie.split('; ').find(r => r.startsWith('token='))?.split('=')[1]
+    const res = await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ userId: u.id, isVerified: !u.isVerified }),
+    })
+    const data = await res.json()
+    if (data.success) {
+      setUsers(prev => prev.map(x => x.id === u.id ? { ...x, isVerified: !x.isVerified } : x))
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Users</h1>
-      <p className="text-gray-500 text-sm mb-6">{total} total users</p>
+      <h1 className="text-2xl font-bold text-green-900 mb-1">Users</h1>
+      <p className="text-green-800 text-sm mb-6">{total} total users</p>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
@@ -117,13 +130,16 @@ export default function AdminUsersPage() {
                   <span className={`text-xs font-medium px-2 py-1 rounded-full w-fit ${ROLE_COLORS[u.role] || 'bg-gray-100 text-gray-600'}`}>
                     {u.role}
                   </span>
-                  <span className="flex items-center gap-1 text-xs">
+                  <button
+                    onClick={() => toggleVerified(u)}
+                    className="flex items-center gap-1 text-xs w-fit hover:opacity-70"
+                  >
                     {u.isVerified ? (
                       <><CheckCircle2 size={14} className="text-green-600" /> <span className="text-green-700">Verified</span></>
                     ) : (
                       <><XCircle size={14} className="text-gray-400" /> <span className="text-gray-400">Unverified</span></>
                     )}
-                  </span>
+                  </button>
                   <span className={`text-xs font-medium px-2 py-1 rounded-full w-fit ${u.isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
                     {u.isActive ? 'Active' : 'Suspended'}
                   </span>
